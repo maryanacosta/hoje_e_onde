@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= evento ? evento.titulo : 'Evento Não Encontrado' %> - Hoje É Onde?</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css"> 
+    <style>
+        .event-banner {
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: .375rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <a href="/" class="btn btn-outline-secondary mb-4">← Voltar para a Home</a>
+
+        <% if (!evento) { %>
+            <div class="alert alert-danger" role="alert">
+                Evento não encontrado ou não aprovado.
+            </div>
+        <% } else { %>
+            <div class="card shadow-lg border-0">
+                <% /* Imagem de banner - ajuste a URL conforme a sua estrutura */ %>
+                <img src="/img/<%= evento.imagem || 'default_event_large.jpg' %>" class="card-img-top event-banner" alt="Banner do Evento">
+                
+                <div class="card-body p-md-5">
+                    <h1 class="card-title text-warning mb-3"><%= evento.titulo %></h1>
+                    <span class="badge bg-info text-dark mb-3"><%= evento.tipo %></span>
+                    
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <h4>📅 Data e Hora</h4>
+                            <p class="mb-1"><strong>Data:</strong> <%= new Date(evento.data).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+                            <p class="mb-1"><strong>Horário/Duração:</strong> <%= evento.duracao || 'Não informado' %></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>📍 Local</h4>
+                            <p class="mb-1"><strong>Local:</strong> <%= evento.local %></p>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mt-4">📝 Descrição Detalhada</h4>
+                    <p class="card-text text-muted"><%= evento.descricao %></p>
+
+                    <% if (evento.publicoAlvo) { %>
+                        <h4 class="mt-4">👥 Público Alvo</h4>
+                        <p class="card-text"><%= evento.publicoAlvo %></p>
+                    <% } %>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-success me-2 fs-5">👍 <%= evento.TotalPositivo %></span>
+                            <span class="badge bg-danger me-2 fs-5">👎 <%= evento.TotalNegativo %></span>
+                        </div>
+                        
+                        <% if (isLogged) { %>
+                            <div class="d-flex">
+                                <button id="vote-positivo" data-voto="positivo" class="btn btn-lg me-2 
+                                    <%= usuarioVoto === 'positivo' ? 'btn-success' : 'btn-outline-success' %>">
+                                    👍 Gosto
+                                </button>
+                                <button id="vote-negativo" data-voto="negativo" class="btn btn-lg me-3 
+                                    <%= usuarioVoto === 'negativo' ? 'btn-danger' : 'btn-outline-danger' %>">
+                                    👎 Não Gosto
+                                </button>
+                                
+                                <button id="salvar-btn" data-evento-id="<%= evento.id %>" class="btn btn-lg 
+                                    <%= estaSalvo ? 'btn-success' : 'btn-outline-warning' %>">
+                                    <%= estaSalvo ? '✅ Salvo' : '💾 Salvar' %>
+                                </button>
+                            </div>
+                        <% } else { %>
+                            <div class="alert alert-warning p-2 m-0">
+                                <a href="/login" class="alert-link">Faça Login</a> para votar e salvar este evento.
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <% if (isLogged && evento) { %>
+    <script>
+        // CORREÇÃO APLICADA AQUI
+        const eventoId = parseInt('<%= evento.id %>', 10);
+        
+        // --- Lógica de Votação ---
+        document.querySelectorAll('#vote-positivo, #vote-negativo').forEach(button => {
+            button.addEventListener('click', function() {
+                const tipoVoto = this.getAttribute('data-voto');
+                
+                fetch('/votar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ eventoId: eventoId, tipoVoto: tipoVoto })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Atualiza a contagem visual
+                        document.querySelector('.bg-success.fs-5').innerText = '👍 ' + data.counts.TotalPositivo;
+                        document.querySelector('.bg-danger.fs-5').innerText = '👎 ' + data.counts.TotalNegativo;
+
+                        // Atualiza o estado visual dos botões
+                        document.getElementById('vote-positivo').className = 'btn btn-lg me-2 ' + 
+                            (tipoVoto === 'positivo' ? 'btn-success' : 'btn-outline-success');
+                        document.getElementById('vote-negativo').className = 'btn btn-lg me-3 ' + 
+                            (tipoVoto === 'negativo' ? 'btn-danger' : 'btn-outline-danger');
+                        
+                        // alert(data.message); // Opcional
+                    } else {
+                        // Caso seja um voto repetido sem alteração
+                        // alert(data.message); // Opcional
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao votar:', error);
+                    alert('Ocorreu um erro ao registrar seu voto.');
+                });
+            });
+        });
+
+        // --- Lógica de Salvamento ---
+        document.getElementById('salvar-btn').addEventListener('click', function(e) {
+            e.preventDefault(); 
+            e.stopPropagation(); 
+
+            const button = this;
+
+            fetch('/salvar-evento', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eventoId: eventoId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) {
+                    button.classList.remove('btn-outline-warning');
+                    button.classList.add('btn-success');
+                    button.innerText = '✅ Salvo';
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao salvar o evento.');
+            });
+        });
+    </script>
+    <% } %>
+</body>
+</html>

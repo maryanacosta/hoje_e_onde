@@ -1,0 +1,138 @@
+/*
+ * Tema: Simples, Chique e Vibrante
+ * Paleta: Laranja Queimado/Ouro Velho (para destaque), Cinza Escuro (fundo), Branco (conteúdo).
+ */
+
+/* --- 1. Reset Básico e Fontes --- */
+body {
+    /* Fundo suave para contrastar com os cards de evento */
+    background-color: #f8f8f8; /* Cinza muito claro */
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #333; /* Texto principal em cinza escuro */
+}
+
+/* --- 2. Cabeçalho e Navegação Superior --- */
+
+/* Fundo do cabeçalho levemente mais escuro */
+header {
+    background-color: #ffffff;
+    border-bottom: 2px solid #ffcc00; /* Linha sutil de destaque */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra sutil */
+}
+
+/* Cor dos botões de calendário e usuário */
+.btn-warning {
+    background-color: #ffaa00; /* Laranja/Ouro principal */
+    border-color: #ffaa00;
+    color: #ffffff;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-warning:hover {
+    background-color: #e69500; /* Laranja mais escuro no hover */
+    border-color: #e69500;
+}
+
+/* Input de busca customizado */
+.form-control::placeholder {
+    color: #999;
+}
+
+/* --- 3. Destaque de Conteúdo e Cartões (Cards) --- */
+
+/* Títulos principais da data */
+h3.text-warning {
+    color: #ffaa00 !important;
+    font-weight: 700;
+    font-size: 1.8rem;
+}
+
+/* Links de navegação de data (dias anteriores/posteriores) */
+.text-secondary {
+    color: #777 !important;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+.text-secondary:hover {
+    color: #ffaa00 !important;
+}
+
+/* Estilo dos Cards de Evento */
+.card {
+    border-radius: 12px; /* Cantos arredondados para visual elegante */
+    overflow: hidden; /* Garante que a imagem se encaixe */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Efeito sutil de elevação */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1); /* Sombra mais marcada no hover */
+}
+
+/* Imagem do Banner */
+.card-img-top {
+    height: 180px; /* Altura fixa para todos os cards */
+    object-fit: cover; /* Garante que a imagem preencha o espaço sem distorcer, cortando o excesso */
+}
+
+/* Título do Evento */
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Subtítulo (Local e Horário) */
+.card-text small {
+    color: #777 !important;
+}
+
+/* --- 4. Formulários (Cadastro/Login) --- */
+
+/* Título dos formulários */
+.container h2.text-warning {
+    color: #ffaa00 !important;
+    border-bottom: 2px solid #ffcc00;
+    padding-bottom: 10px;
+}
+
+/* Estilo dos Inputs */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* --- 5. Estilo Específico: Página de Detalhes do Evento --- */
+
+/* Imagem de Detalhes (Evento Banner) - Mais Quadrada e Larga */
+.event-banner {
+    width: 100%; /* Garante que ocupe toda a largura do contêiner */
+    height: 300px; /* Altura aumentada para torná-la mais próxima de um quadrado */
+    object-fit: cover; /* Mantém a imagem coberta e sem distorção */
+    border-radius: 12px; /* Aplica o mesmo canto arredondado dos cards */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil para destaque */
+    margin-bottom: 30px; /* Adiciona um espaço abaixo do banner */
+}
+
+/* Container de informações rápidas na lateral */
+.detail-info-group {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 5px solid #ffaa00; /* Linha de destaque para organização (cor primária) */
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.detail-info-group h4 {
+    color: #ffaa00; /* Títulos menores na cor do tema */
+    font-weight: 600;
+    font-size: 1.15rem;
+}
+
+.detail-main-content h4 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+}
