@@ -1,5 +1,6 @@
 // app.js
 const express = require('express');
+const multer = require('multer'); // <--- NOVO
 const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
@@ -60,6 +61,24 @@ function initializeDatabase() {
     });
 }
 
+// app.js (Configuração Multer)
+
+// Configuração do Multer para armazenamento
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        // Onde os arquivos serão salvos (dentro da pasta public)
+        cb(null, 'public/img/'); 
+    },
+    filename: (req, file, cb) => {
+        // Cria um nome de arquivo único: campo-originalNome-timestamp.ext
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const fileExtension = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + fileExtension);
+    }
+});
+
+const upload = multer({ storage: storage });
+
 
 // --- Middlewares de Configuração ---
 app.use(express.urlencoded({ extended: true }));
@@ -115,6 +134,8 @@ app.post('/cadastro', (req, res) => {
     });
 });
 app.get('/login', (req, res) => { res.render('login', { erro: req.query.erro }); });
+// app.js (Trecho da rota POST /login)
+
 app.post('/login', (req, res) => {
     const { email, senha } = req.body;
     db.get('SELECT * FROM usuarios WHERE email = ?', [email], (err, user) => {
@@ -124,6 +145,8 @@ app.post('/login', (req, res) => {
                 req.session.isLogged = true;
                 req.session.userId = user.id;
                 req.session.userNome = user.nomeCompleto.split(' ')[0];
+                // NOVO: Salvando o tipo de usuário na sessão
+                req.session.userTipo = user.tipo; 
                 res.redirect('/');
             } else {
                 res.redirect('/login?erro=Email ou senha inválidos.');
@@ -198,6 +221,7 @@ app.get('/', (req, res) => {
                 eventos: eventosDoDia,
                 isLogged: req.session.isLogged,
                 userName: req.session.userNome,
+                userTipo: req.session.userTipo || 'visitante', // NOVO: Passando o tipo
                 dataBuscaAtiva: dataBusca,
                 dataExibicao: formatarExibicao(dataAtual),
                 linkAnterior: `/?data=${formatarLink(dataAnterior)}&ordenar=${ordenarPor}&tipo=${filtrarPorTipo}`,
@@ -266,6 +290,38 @@ app.post('/votar', requireLogin, (req, res) => {
         } else {
              res.status(200).json({ success: false, message: 'Você já tinha votado dessa forma neste evento.', counts: {} });
         }
+    });
+});
+
+// ROTA POST: Cadastro de novo Administrador por um Admin
+// app.js (Encontre e substitua esta rota)
+
+// ROTA POST: Cadastro de novo Administrador por um Admin
+app.post('/admin/cadastrar-admin', requireAdmin, (req, res) => {
+    // ATUALIZADO: Captura todos os campos obrigatórios do formulário
+    const { nomeCompleto, genero, email, cpf_cnpj, endereco, cidade, estado, celular, cep, senha } = req.body;
+
+    // Criptografa a senha
+    bcrypt.hash(senha, saltRounds, (err, hash) => {
+        if (err) return res.status(500).send('Erro interno ao processar a senha.');
+        
+        // Insere o usuário com todos os campos necessários e tipo 'admin'
+        const query = `
+            INSERT INTO usuarios 
+            (nomeCompleto, genero, email, cpf_cnpj, endereco, cidade, estado, celular, cep, senha, tipo) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'admin')
+        `;
+        const values = [nomeCompleto, genero || null, email, cpf_cnpj, endereco, cidade, estado, celular, cep, hash];
+        
+        db.run(query, values, function(err) {
+            if (err) {
+                if (err.message.includes('UNIQUE constraint failed')) return res.status(400).send('Erro: E-mail ou CPF/CNPJ já cadastrado.');
+                console.error('Erro detalhado ao cadastrar novo admin:', err.message);
+                // Retorna a mensagem de erro que estava mascarando o problema
+                return res.status(500).send('Erro interno ao cadastrar o administrador. Verifique o console do servidor.');
+            }
+            res.redirect('/admin?status=novo_admin_cadastrado');
+        });
     });
 });
 
@@ -373,17 +429,33 @@ app.post('/remover-salvo', requireLogin, (req, res) => {
 
 // --- ROTAS DE SUBMISSÃO E ADMIN ---
 app.get('/submeter-evento', requireLogin, (req, res) => { res.render('submeter_evento', { userName: req.session.userNome }); });
-app.post('/submeter-evento', requireLogin, (req, res) => {
+// app.js (Sua rota POST de submissão de evento, totalmente substituída)
+
+app.post('/submeter-evento', requireLogin, upload.single('banner'), (req, res) => {
+    // req.file contém informações sobre o arquivo se houver upload
+    const nomeArquivo = req.file ? req.file.filename : null; 
+    
+    // Captura os dados do corpo (via Multer)
     const { titulo, descricao, data, duracao, local, publicoAlvo, tipo } = req.body;
     const organizadorId = req.session.userId;
-    const query = `INSERT INTO eventos (titulo, descricao, data, duracao, local, publicoAlvo, tipo, organizadorId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    const values = [titulo, descricao, data, duracao, local, publicoAlvo, tipo, organizadorId];
+    
+    // SQL: Adiciona o campo 'imagem' na inserção
+    const query = `
+        INSERT INTO eventos 
+        (titulo, descricao, data, duracao, local, publicoAlvo, tipo, organizadorId, imagem) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const values = [titulo, descricao, data, duracao, local, publicoAlvo, tipo, organizadorId, nomeArquivo];
 
     db.run(query, values, function(err) {
-        if (err) { console.error('Erro ao submeter evento:', err.message); return res.status(500).send('Erro interno ao salvar o evento.'); }
+        if (err) { 
+            console.error('Erro ao submeter evento:', err.message); 
+            return res.status(500).send('Erro interno ao salvar o evento.'); 
+        }
         res.send(`<h1>Sucesso!</h1><p>Evento submetido com sucesso! Ele passará por aprovação administrativa antes de ser publicado.</p><a href="/">Voltar para a página inicial</a>`);
     });
 });
+
 app.get('/admin', requireAdmin, (req, res) => {
     const query = `SELECT e.*, u.nomeCompleto as organizadorNome FROM eventos e JOIN usuarios u ON e.organizadorId = u.id WHERE e.aprovado = 0`;
     db.all(query, (err, eventosPendentes) => {
@@ -406,6 +478,40 @@ app.post('/admin/aprovar', requireAdmin, (req, res) => {
     } else {
         res.redirect('/admin');
     }
+});
+
+// app.js (Adicione esta nova rota junto com as outras rotas GET)
+
+// ROTA: Calendário de Eventos
+app.get('/calendario', (req, res) => {
+    // Busca todos os eventos aprovados para preencher o calendário
+    const query = `
+        SELECT id, titulo, data, tipo, duracao
+        FROM eventos 
+        WHERE aprovado = 1 
+        ORDER BY data ASC, duracao ASC
+    `;
+
+    db.all(query, (err, eventos) => {
+        if (err) {
+            console.error('Erro ao buscar eventos para o calendário:', err.message);
+            eventos = [];
+        }
+        
+        // Renderiza a view de calendário
+        res.render('calendario', { 
+            eventos: eventos,
+            isLogged: req.session.isLogged,
+            userName: req.session.userNome,
+            // Passa o mês atual como default
+            mesAtivo: req.query.mes || new Date().toISOString().slice(0, 7) // Formato YYYY-MM
+        });
+    });
+});
+
+// ROTA GET: Exibir formulário de cadastro de Admin (apenas para Admin)
+app.get('/admin/cadastrar-admin', requireAdmin, (req, res) => {
+    res.render('admin_cadastrar', { userName: req.session.userNome });
 });
 
 // --- INICIALIZAÇÃO ---

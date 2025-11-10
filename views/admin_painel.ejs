@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Hoje É Onde?</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css"> 
+</head>
+<body>
+    <div class="container my-5">
+        <h2 class="text-warning mb-4">👑 Painel de Administração</h2>
+        <p class="text-muted">Bem-vindo, <%= userName %>. Gerencie a aprovação de eventos e a equipe administrativa.</p>
+        
+        <div class="d-flex justify-content-between mb-4">
+            <a href="/" class="btn btn-outline-secondary">← Voltar para a Home</a>
+            
+            <a href="/admin/cadastrar-admin" class="btn btn-warning">➕ Cadastrar Novo Admin</a>
+        </div>
+        
+        <hr>
+
+        <h3 class="mt-5 mb-3">Eventos Pendentes de Aprovação:</h3>
+
+        <% if (eventos.length === 0) { %>
+            <div class="alert alert-info" role="alert">
+                Não há eventos pendentes de aprovação no momento.
+            </div>
+        <% } else { %>
+            <div class="list-group">
+                <% eventos.forEach(evento => { %>
+                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center flex-wrap">
+                        
+                        <div class="col-md-7 mb-2 mb-md-0">
+                            <strong><%= evento.titulo %> (<%= evento.tipo %>)</strong>
+                            <p class="mb-0 small text-muted">
+                                Enviado por: <%= evento.organizadorNome %>
+                            </p>
+                            <p class="mb-0 small text-muted">
+                                Data: <%= evento.data %> | Local: <%= evento.local %>
+                            </p>
+                            <details class="mt-2">
+                                <summary class="small">Ver Descrição Detalhada</summary>
+                                <p class="small mt-2 p-2 border rounded bg-light"><%= evento.descricao %></p>
+                                <% if (evento.publicoAlvo) { %>
+                                    <p class="small mb-0">Público Alvo: **<%= evento.publicoAlvo %>**</p>
+                                <% } %>
+                            </details>
+                        </div>
+                        
+                        <div class="col-md-4 d-flex justify-content-end">
+                            <form method="POST" action="/admin/aprovar">
+                                <input type="hidden" name="eventoId" value="<%= evento.id %>">
+                                
+                                <button type="submit" name="acao" value="aprovar" class="btn btn-sm btn-success me-2">
+                                    ✅ Aprovar (Publicar)
+                                </button>
+                                
+                                <button type="submit" name="acao" value="recusar" class="btn btn-sm btn-danger">
+                                    ❌ Recusar (Excluir)
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } %>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

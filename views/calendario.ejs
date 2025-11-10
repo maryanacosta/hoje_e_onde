@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário de Eventos - Hoje É Onde?</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css"> 
+    <style>
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+        }
+        .day-header {
+            background-color: #f0f0f0;
+            text-align: center;
+            padding: 8px 0;
+            font-weight: bold;
+            color: #333;
+        }
+        .day-cell {
+            min-height: 120px;
+            padding: 5px;
+            border: 1px solid #eee;
+            background-color: #fff;
+            position: relative;
+        }
+        .day-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffaa00; /* Cor do tema */
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+        .empty-day {
+            background-color: #f8f8f8;
+        }
+        .event-chip {
+            font-size: 0.75rem;
+            display: block;
+            margin-top: 3px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #fff;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .event-chip.Festa { background-color: #ffaa00; }
+        .event-chip.Promocao { background-color: #0d6efd; }
+        .event-chip.Oportunidade { background-color: #198754; }
+        .event-chip.Outro { background-color: #6c757d; }
+        /* Para Evento Cultural/Social */
+        .event-chip.Evento { background-color: #dc3545; }
+
+        .today-cell {
+            border: 2px solid #ffaa00; 
+            box-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+        }
+
+        /* Novo: Estiliza o link da célula para cobrir a área */
+        .day-cell-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Novo: Garante que a célula-link se comporte como um item da grid */
+        .day-cell-link, .day-cell {
+            display: block;
+            height: 100%;
+        }
+
+        .day-cell {
+            min-height: 120px;
+            padding: 5px;
+            border: 1px solid #eee;
+            background-color: #fff;
+            position: relative;
+            cursor: pointer; /* Indica que é clicável */
+            transition: background-color 0.2s;
+        }
+        
+        .day-cell:hover {
+            /* Destaque visual ao passar o mouse */
+            background-color: #f0f0f0; 
+        }
+        
+        /* Novo: Estilo para células com eventos (opcional) */
+        .day-cell.has-event {
+            border-left: 3px solid #ffaa00; 
+        }
+        
+        .event-chip {
+            /* ... Mantenha o restante do estilo do chip ... */
+            cursor: pointer; /* Mantém o cursor de clique */
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-warning">Calendário de Eventos</h2>
+            <a href="/" class="btn btn-outline-secondary">Voltar para a Home</a>
+        </div>
+        
+        <% 
+            const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            
+            // 1. Processar a data ativa
+            const mesAtivoData = new Date(mesAtivo + "-01T00:00:00");
+            const anoAtivo = mesAtivoData.getFullYear();
+            const mesIndex = mesAtivoData.getMonth();
+            const nomeMes = meses[mesIndex] + " de " + anoAtivo;
+
+            // 2. Preparar dados para o calendário
+            const primeiroDia = new Date(anoAtivo, mesIndex, 1);
+            const ultimoDia = new Date(anoAtivo, mesIndex + 1, 0);
+            const diasNoMes = ultimoDia.getDate();
+            
+            // Ajustar o dia de início (0=Dom, 1=Seg, ..., 6=Sab). Subtrai 1 para começar a semana na Segunda.
+            // Para JS: 0=Dom. Se quisermos Seg=0: (primeiroDia.getDay() + 6) % 7.
+            const offset = (primeiroDia.getDay() + 6) % 7; 
+            const diasDaSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+
+            // Estruturar eventos por dia para acesso rápido
+            const eventosPorDia = {};
+            const hoje = new Date().toISOString().slice(0, 10);
+            
+            eventos.forEach(evento => {
+                const dataKey = evento.data; // YYYY-MM-DD
+                const mesEvento = dataKey.slice(0, 7);
+                
+                // Filtra apenas os eventos do mês ativo (a busca do app.js traz todos)
+                if (mesEvento === mesAtivo) {
+                    if (!eventosPorDia[dataKey]) eventosPorDia[dataKey] = [];
+                    eventosPorDia[dataKey].push(evento);
+                }
+            });
+
+            // Lógica de navegação: Mês anterior e posterior
+            const mesAnterior = new Date(mesAtivoData); mesAnterior.setMonth(mesIndex - 1);
+            const mesPosterior = new Date(mesAtivoData); mesPosterior.setMonth(mesIndex + 1);
+            const linkAnterior = `/calendario?mes=${mesAnterior.toISOString().slice(0, 7)}`;
+            const linkPosterior = `/calendario?mes=${mesPosterior.toISOString().slice(0, 7)}`;
+        %>
+
+        <div class="d-flex justify-content-center align-items-center mb-4 p-3 bg-white rounded shadow-sm">
+            <a href="<%= linkAnterior %>" class="btn btn-outline-secondary mx-3">← Mês Anterior</a>
+            <h3 class="mx-5 text-warning mb-0"><%= nomeMes %></h3>
+            <a href="<%= linkPosterior %>" class="btn btn-outline-secondary mx-3">Mês Posterior →</a>
+        </div>
+        
+        <div class="calendar-grid shadow-lg">
+            
+            <% diasDaSemana.forEach(dia => { %>
+                <div class="day-header"><%= dia %></div>
+            <% }); %>
+
+            <% for(let i = 0; i < offset; i++) { %>
+                <div class="day-cell empty-day"></div>
+            <% } %>
+
+            <% for(let dia = 1; dia <= diasNoMes; dia++) { 
+                const dataCompleta = anoAtivo + "-" + (mesIndex + 1).toString().padStart(2, '0') + "-" + dia.toString().padStart(2, '0');
+                const isToday = dataCompleta === hoje;
+                const temEvento = eventosPorDia[dataCompleta] && eventosPorDia[dataCompleta].length > 0;
+            %>
+                <a href="/?data=<%= dataCompleta %>" class="day-cell-link">
+                    <div class="day-cell <%= isToday ? 'today-cell' : '' %> <%= temEvento ? 'has-event' : '' %>">
+                        
+                        <span class="day-number"><%= dia %></span>
+                        
+                        <% if (temEvento) { %>
+                            <div class="event-chips-container mt-4"> 
+                                <% eventosPorDia[dataCompleta].forEach(e => { %>
+                                    <span class="event-chip <%= e.tipo.replace(/ /g, '').replace(/\//g, '') %>" 
+                                       title="<%= e.titulo %> (<%= e.duracao %>)">
+                                        <%= e.titulo %>
+                                    </span>
+                                <% }); %>
+                            </div>
+                        <% } %>
+                    </div>
+                </a>
+            <% } %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

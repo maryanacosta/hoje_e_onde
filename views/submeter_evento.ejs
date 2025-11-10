@@ -12,7 +12,7 @@
         <h2 class="text-warning mb-4">Submeter Novo Evento ou Promoção</h2>
         <p>Preencha os detalhes para divulgação. Seu post será revisado antes da publicação. </p>
         
-        <form method="POST" action="/submeter-evento">
+        <form method="POST" action="/submeter-evento" enctype="multipart/form-data">
             
             <div class="mb-3">
                 <label for="titulo" class="form-label">Título do Evento:</label>
@@ -24,8 +24,8 @@
                 <select class="form-select" id="tipo" name="tipo" required>
                     <option value="">Selecione o Tipo</option>
                     <option value="Festa">Festa</option>
-                    <option value="Evento">Evento Cultural/Social</option>
-                    <option value="Promocao">Promoção</option>
+                    <option value="Evento Cultural/Social">Evento Cultural/Social</option>
+                    <option value="Promoção">Promoção</option>
                     <option value="Oportunidade">Oportunidade</option>
                     <option value="Outro">Outro</option>
                 </select>
@@ -55,6 +55,11 @@
             <div class="mb-3">
                 <label for="publicoAlvo" class="form-label">Público Alvo:</label>
                 <input type="text" class="form-control" id="publicoAlvo" name="publicoAlvo">
+            </div>
+            
+            <div class="mb-3">
+                <label for="banner" class="form-label">Banner/Imagem do Evento (Opcional):</label>
+                <input type="file" class="form-control" id="banner" name="banner" accept="image/*">
             </div>
 
             <button type="submit" class="btn btn-warning mt-3">Submeter para Aprovação</button>

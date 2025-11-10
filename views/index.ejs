@@ -10,7 +10,7 @@
 <body>
     <header class="p-3 mb-3 border-bottom">
         <div class="container d-flex flex-wrap justify-content-center">
-            <a href="#" class="btn btn-warning me-2">📅 Calendário</a>
+            <a href="/calendario" class="btn btn-warning me-2">📅 Calendário</a>
             
             <input type="search" class="form-control me-auto" placeholder="🔍 Pesquise um 
 evento" style="max-width: 300px;">
@@ -18,8 +18,7 @@ evento" style="max-width: 300px;">
             <% if (isLogged) { %>
                 <div class="dropdown">
                     <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Olá, <%= userName %> 
-👤
+                        Olá, <%= userName %> 👤
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="/area-usuario">Minha Área</a></li>
@@ -27,14 +26,18 @@ evento" style="max-width: 300px;">
    
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/logout">Sair</a></li>
-                        <li><a class="dropdown-item text-danger" href="/admin">Painel Admin</a></li>
+                        
+                        <% if (userTipo === 'admin') { %> 
+                            <li><a class="dropdown-item text-danger" href="/admin">Painel Admin</a></li>
+                        <% } %>
                     </ul>
     
                 </div>
             <% } else { %>
-                <a href="/login" class="btn btn-outline-warning me-2">Login</a>
+                <a href="/login" class="btn btn-outline-secondary me-2">Login</a>
                 <a href="/cadastro" class="btn btn-warning">Cadastro</a>
             <% } %>
+
         </div>
     </header>
 
