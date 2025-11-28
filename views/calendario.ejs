@@ -129,10 +129,12 @@
 
             // Estruturar eventos por dia para acesso rápido
             const eventosPorDia = {};
-            const hoje = new Date().toISOString().slice(0, 10);
+            const hoje = new Date().toLocaleDateString('pt-BR', {
+                timeZone: 'America/Sao_Paulo' 
+            }).split('/').reverse().join('-');
             
             eventos.forEach(evento => {
-                const dataKey = evento.data; // YYYY-MM-DD
+                const dataKey = evento.data; // AAAA-MM-DD
                 const mesEvento = dataKey.slice(0, 7);
                 
                 // Filtra apenas os eventos do mês ativo (a busca do app.js traz todos)

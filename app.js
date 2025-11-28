@@ -9,11 +9,19 @@ const app = express();
 const PORT = 3000;
 const saltRounds = 10;
 
+function getDataHojeBrasil() {
+    return new Date().toLocaleDateString('pt-BR', {
+        timeZone: 'America/Sao_Paulo'
+    }).split('/').reverse().join('-');
+}
+
 // --- Funções de Inicialização de Dados (CORREÇÃO DE DUPLICAÇÃO E IMAGEM) ---
 
 // Função para garantir que os eventos iniciais estejam corretos
 function initializeDatabase() {
-    const dataAtual = new Date().toISOString().slice(0, 10);
+    const dataAtual = new Date().toLocaleDateString('pt-BR', {
+        timeZone: 'America/Sao_Paulo'
+    }).split('/').reverse().join('-'); // inverte pro formato AAAA-MM-DD porque é o formato do SQLite
     const eventosIniciais = [
         // CORREÇÃO: Apenas o nome do arquivo, sem o prefixo 'img/'
         { titulo: 'Quintaneja', local: 'Salão Parthenon', duracao: '21:00', tipo: 'Festa', imagem: 'quintaneja.jpg', data: dataAtual },
@@ -164,15 +172,24 @@ app.get('/logout', (req, res) => {
 
 // --- ROTA PRINCIPAL (Home) ---
 app.get('/', (req, res) => {
-    const dataBusca = req.query.data || new Date().toISOString().slice(0, 10);
+    let dataBusca = req.query.data; //req.query.data pega a data da URL
+    if (!dataBusca) { // 
+        dataBusca = getDataHojeBrasil();
+    }
+
     const ordenarPor = req.query.ordenar || 'horario';
     const filtrarPorTipo = req.query.tipo || 'todos';
 
-    const dataAtual = new Date(dataBusca + 'T00:00:00'); // Adiciona T00:00:00 para evitar problemas de fuso horário
-    const dataAnterior = new Date(dataAtual); dataAnterior.setDate(dataAtual.getDate() - 1);
-    const dataPosterior = new Date(dataAtual); dataPosterior.setDate(dataAtual.getDate() + 1);
+    const dataAtual = new Date(dataBusca + 'T12:00:00'); // começa do meio dia
+    
+    const dataAnterior = new Date(dataAtual); 
+    dataAnterior.setDate(dataAtual.getDate() - 1);
+    
+    const dataPosterior = new Date(dataAtual); 
+    dataPosterior.setDate(dataAtual.getDate() + 1);
+
     const formatarExibicao = (data) => data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-    const formatarLink = (data) => data.toISOString().slice(0, 10);
+    const formatarLink = (data) => data.toISOString().slice(0, 10); // AAAA-MM-DD
 
     let orderByClause = '';
     let whereTipoClause = '';
@@ -196,6 +213,7 @@ app.get('/', (req, res) => {
         queryParams.push(filtrarPorTipo);
     }
     
+    // busca os tipos de evento para o filtro
     db.all('SELECT nome FROM tipos_evento', (err, tipos) => {
         const tiposDisponiveis = tipos ? tipos.map(t => t.nome) : [];
 
@@ -221,9 +239,9 @@ app.get('/', (req, res) => {
                 eventos: eventosDoDia,
                 isLogged: req.session.isLogged,
                 userName: req.session.userNome,
-                userTipo: req.session.userTipo || 'visitante', // NOVO: Passando o tipo
+                userTipo: req.session.userTipo || 'visitante',
                 dataBuscaAtiva: dataBusca,
-                dataExibicao: formatarExibicao(dataAtual),
+                dataExibicao: formatarExibicao(dataAtual), // DD/MM
                 linkAnterior: `/?data=${formatarLink(dataAnterior)}&ordenar=${ordenarPor}&tipo=${filtrarPorTipo}`,
                 linkPosterior: `/?data=${formatarLink(dataPosterior)}&ordenar=${ordenarPor}&tipo=${filtrarPorTipo}`,
                 exibicaoAnterior: formatarExibicao(dataAnterior),
@@ -504,7 +522,7 @@ app.get('/calendario', (req, res) => {
             isLogged: req.session.isLogged,
             userName: req.session.userNome,
             // Passa o mês atual como default
-            mesAtivo: req.query.mes || new Date().toISOString().slice(0, 7) // Formato YYYY-MM
+            mesAtivo: req.query.mes || new Date().toISOString().slice(0, 7) // formato AAAA-MM
         });
     });
 });

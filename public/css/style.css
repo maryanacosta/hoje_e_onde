@@ -27,7 +27,6 @@ header {
     font-weight: bold;
 }
 
-
 .bg-main { /*só cor de fundo, não precisa de hover*/
     background-color: #ff9900 !important;
     color: #ffffff !important;
