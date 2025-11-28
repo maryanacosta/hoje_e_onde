@@ -17,55 +17,60 @@ function getDataHojeBrasil() {
 
 // --- Funções de Inicialização de Dados (CORREÇÃO DE DUPLICAÇÃO E IMAGEM) ---
 
-// Função para garantir que os eventos iniciais estejam corretos
+// inicializa eventos padrão se não existirem
+// ao reiniciar o servidor, evita duplicações, mantém os eventos originais e os votos e salvamentos continuam
 function initializeDatabase() {
     const dataAtual = new Date().toLocaleDateString('pt-BR', {
         timeZone: 'America/Sao_Paulo'
-    }).split('/').reverse().join('-'); // inverte pro formato AAAA-MM-DD porque é o formato do SQLite
+    }).split('/').reverse().join('-'); 
+
     const eventosIniciais = [
-        // CORREÇÃO: Apenas o nome do arquivo, sem o prefixo 'img/'
-        { titulo: 'Quintaneja', local: 'Salão Parthenon', duracao: '21:00', tipo: 'Festa', imagem: 'quintaneja.jpg', data: dataAtual },
-        { titulo: 'NOISE Fest', local: 'McBee Music Bar', duracao: '20:00', tipo: 'Festa', imagem: 'noisefest.jpeg', data: dataAtual },
-        { titulo: 'Encontro de Motociclistas', local: 'Espaço de eventos - UFV', duracao: '11:00', tipo: 'Evento Cultural/Social', imagem: 'motos.jpeg', data: dataAtual },
+        { titulo: 'Quintaneja', local: 'Salão Parthenon', duracao: '21:00', tipo: 'Festa', imagem: 'quintaneja.jpg' },
+        { titulo: 'NOISE Fest', local: 'McBee Music Bar', duracao: '20:00', tipo: 'Festa', imagem: 'noisefest.jpeg' },
+        { titulo: 'Encontro de Motociclistas', local: 'Espaço de eventos - UFV', duracao: '11:00', tipo: 'Evento Cultural/Social', imagem: 'motos.jpeg' },
     ];
 
-    // 1. Limpa entradas antigas do sistema (organizadorId = 0) para remover duplicatas e caminhos errados.
-    db.run('DELETE FROM eventos WHERE organizadorId = 0', function(err) {
-        if (err) {
-            console.error('Erro ao limpar eventos iniciais antigos:', err.message);
-            return;
-        }
-        console.log(`Sucesso: ${this.changes} eventos iniciais antigos foram removidos para evitar duplicação e corrigir a imagem.`);
+    // verifica se já existem eventos do sistema (organizadorId = 0)
+    db.all('SELECT id, titulo FROM eventos WHERE organizadorId = 0', (err, rows) => {
+        if (err) return console.error(err.message);
 
-        // 2. Insere as entradas corretas e limpas.
-        eventosIniciais.forEach(evento => {
-            // Incluído o campo 'imagem' no INSERT
-            const query = `
-                INSERT INTO eventos 
-                (titulo, descricao, data, duracao, local, publicoAlvo, tipo, organizadorId, aprovado, imagem) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `;
-            const values = [
-                evento.titulo, 
-                'Descrição detalhada do evento inicial.', 
-                evento.data, 
-                evento.duracao, 
-                evento.local, 
-                'Público em geral', 
-                evento.tipo, 
-                0, // organizadorId 0 para eventos do sistema
-                1, // aprovado = 1
-                evento.imagem // nome do arquivo (e.g., 'quintaneja.jpg')
-            ];
-
-            db.run(query, values, function(err) {
-                if (err) {
-                    console.error(`Erro ao inserir evento inicial "${evento.titulo}":`, err.message);
-                } else {
-                    console.log(`Evento inicial "${evento.titulo}" inserido e aprovado.`);
-                }
+        if (rows.length > 0) {
+            console.log('Eventos iniciais encontrados. Atualizando datas para hoje...'); // eventos que já existem, apenas atualiza a data pra hoje
+            
+            const updateQuery = `UPDATE eventos SET data = ? WHERE organizadorId = 0`;
+            db.run(updateQuery, [dataAtual], function(err) {
+                if (err) console.error('Erro ao atualizar datas:', err.message);
+                else console.log(`Datas atualizadas com sucesso para ${this.changes} eventos.`);
             });
-        });
+
+        } else { // se não tem eventos iniciais, cria novos
+            console.log('Nenhum evento inicial encontrado. Criando novos...');
+            
+            eventosIniciais.forEach(evento => {
+                const query = `
+                    INSERT INTO eventos 
+                    (titulo, descricao, data, duracao, local, publicoAlvo, tipo, organizadorId, aprovado, imagem) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `;
+                const values = [
+                    evento.titulo, 
+                    'Descrição detalhada do evento inicial.', 
+                    dataAtual, 
+                    evento.duracao, 
+                    evento.local, 
+                    'Público em geral', 
+                    evento.tipo, 
+                    0, // organizadorId
+                    1, // aprovado
+                    evento.imagem
+                ];
+
+                db.run(query, values, (err) => {
+                    if (err) console.error(`Erro ao criar ${evento.titulo}:`, err.message);
+                    else console.log(`Evento criado: ${evento.titulo}`);
+                });
+            });
+        }
     });
 }
 

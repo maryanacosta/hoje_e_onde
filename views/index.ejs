@@ -85,7 +85,6 @@ rounded shadow-sm">
             <% eventos.forEach(function(evento) { %>
                 <div class="col">
                     <div class="card h-100 shadow-sm border-0 d-flex flex-column">
-                        
                         <a href="<%= evento.id ? `/evento/${evento.id}` : '#' %>" class="text-decoration-none text-dark flex-grow-1">
                             <img src="/img/<%= evento.imagem || 'default_event.jpg' %>" class="card-img-top" alt="Banner do Evento">
                             <div class="card-body pb-1">
@@ -107,7 +106,7 @@ rounded shadow-sm">
                         
      
                         <% if (isLogged && evento.id) { %> 
-                            <div class="p-3 pt-0 d-flex justify-content-end align-items-center bg-white rounded-bottom" 
+                            <div class="p-3 d-flex justify-content-end align-items-center bg-white rounded-bottom" 
                                  style="border-top: 1px solid #eee;">
      
                                 <button class="btn btn-main-bold btn-sm salvar-btn" 
