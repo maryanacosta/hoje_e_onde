@@ -32,6 +32,8 @@ header {
     color: #ffffff !important;
 }
 
+/*alice: confere os proxs styles pra ver se tao sendo usados */
+
 /* Input de busca customizado */
 .form-control::placeholder {
     color: #999;
