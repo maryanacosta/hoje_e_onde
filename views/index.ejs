@@ -10,7 +10,7 @@
 <body>
     <header class="p-3 mb-3 border-bottom">
         <div class="container d-flex flex-wrap justify-content-center">
-            <a href="/calendario" class="btn btn-warning me-2">📅 Calendário</a>
+            <a href="/calendario" class="btn btn-main me-2">📅 Calendário</a>
             
             <input type="search" class="form-control me-auto" placeholder="🔍 Pesquise um 
 evento" style="max-width: 300px;">
@@ -35,7 +35,7 @@ evento" style="max-width: 300px;">
                 </div>
             <% } else { %>
                 <a href="/login" class="btn btn-outline-secondary me-2">Login</a>
-                <a href="/cadastro" class="btn btn-warning">Cadastro</a>
+                <a href="/cadastro" class="btn btn-main">Cadastro</a>
             <% } %>
 
         </div>
@@ -57,10 +57,10 @@ rounded shadow-sm">
                 <span class="text-muted me-3">Ordenar por:</span>
                 <a href="?data=<%= dataBuscaAtiva %>&ordenar=horario&tipo=<%= filtroAtivo %>" 
                    class="btn btn-sm <%= ordenarAtivo === 'horario' ?
-'btn-warning' : 'btn-outline-secondary' %>">Horário</a>
+'btn-main' : 'btn-outline-secondary' %>">Horário</a>
                 <a href="?data=<%= dataBuscaAtiva %>&ordenar=popularidade&tipo=<%= filtroAtivo %>" 
                    class="btn btn-sm <%= ordenarAtivo === 'popularidade' ?
-'btn-warning' : 'btn-outline-secondary' %>">Popularidade</a>
+'btn-main' : 'btn-outline-secondary' %>">Popularidade</a>
             </div>
 
             <div>
@@ -91,10 +91,10 @@ rounded shadow-sm">
                             <div class="card-body pb-1">
                
                                 <% if (evento.id) { %>
-                                    <span class="badge bg-success me-2">👍 <%= evento.TotalPositivo || 0 %></span>
-                                    <span class="badge bg-danger me-2">👎 <%= evento.TotalNegativo || 0 %></span>
+                                    <span class="badge bg-success me-1">👍 <%= evento.TotalPositivo || 0 %></span>
+                                    <!--<span class="badge bg-danger me-2">👎 <%= evento.TotalNegativo || 0 %></span> pensando em tirar dislike msm -->
                                 <% } %>
-                                <span class="badge bg-warning text-dark mb-2"><%= evento.tipo %></span>
+                                <span class="badge bg-main mb-1"><%= evento.tipo %></span>
                                 <h5 class="card-title"><%= evento.titulo %></h5>
                           
                                 <p class="card-text">
@@ -106,13 +106,14 @@ rounded shadow-sm">
                         </a>
                         
      
-                        <% if (isLogged && evento.id) { %> <div class="p-3 pt-0 d-flex justify-content-end align-items-center bg-white rounded-bottom" 
+                        <% if (isLogged && evento.id) { %> 
+                            <div class="p-3 pt-0 d-flex justify-content-end align-items-center bg-white rounded-bottom" 
                                  style="border-top: 1px solid #eee;">
      
-                                <button class="btn btn-outline-warning btn-sm salvar-btn" 
+                                <button class="btn btn-main-bold btn-sm salvar-btn" 
                                         data-evento-id="<%= evento.id %>"> 
                          
-                                    💾 Salvar
+                                    Salvar
                                 </button>
                             </div>
                         <% } %>
@@ -165,7 +166,7 @@ rounded shadow-sm">
                         if (data.success) { 
                             button.classList.remove('btn-outline-warning');
                             button.classList.add('btn-success');
-                            button.innerText = '✅ Salvo';
+                            button.innerText = 'Salvo ✅';
                         }
                     }
                 })

@@ -56,7 +56,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <span class="badge bg-success me-2 fs-5">👍 <%= evento.TotalPositivo %></span>
-                            <span class="badge bg-danger me-2 fs-5">👎 <%= evento.TotalNegativo %></span>
+                            <!--<span class="badge bg-danger me-2 fs-5">👎 <%= evento.TotalNegativo %></span>-->
                         </div>
                         
                         <% if (isLogged) { %>
@@ -65,14 +65,14 @@
                                     <%= usuarioVoto === 'positivo' ? 'btn-success' : 'btn-outline-success' %>">
                                     👍 Gosto
                                 </button>
-                                <button id="vote-negativo" data-voto="negativo" class="btn btn-lg me-3 
+                                <!--<button id="vote-negativo" data-voto="negativo" class="btn btn-lg me-3 
                                     <%= usuarioVoto === 'negativo' ? 'btn-danger' : 'btn-outline-danger' %>">
                                     👎 Não Gosto
-                                </button>
+                                </button>-->
                                 
                                 <button id="salvar-btn" data-evento-id="<%= evento.id %>" class="btn btn-lg 
-                                    <%= estaSalvo ? 'btn-success' : 'btn-outline-warning' %>">
-                                    <%= estaSalvo ? '✅ Salvo' : '💾 Salvar' %>
+                                    <%= estaSalvo ? 'btn-success' : 'btn-main-bold' %>">
+                                    <%= estaSalvo ? ' Salvo ✅' : ' Salvar' %>
                                 </button>
                             </div>
                         <% } else { %>
@@ -93,7 +93,7 @@
         const eventoId = parseInt('<%= evento.id %>', 10);
         
         // --- Lógica de Votação ---
-        document.querySelectorAll('#vote-positivo, #vote-negativo').forEach(button => {
+        document.querySelectorAll('#vote-positivo').forEach(button => { // tirei o #vote-negativo
             button.addEventListener('click', function() {
                 const tipoVoto = this.getAttribute('data-voto');
                 
@@ -107,13 +107,13 @@
                     if (data.success) {
                         // Atualiza a contagem visual
                         document.querySelector('.bg-success.fs-5').innerText = '👍 ' + data.counts.TotalPositivo;
-                        document.querySelector('.bg-danger.fs-5').innerText = '👎 ' + data.counts.TotalNegativo;
+                        //document.querySelector('.bg-danger.fs-5').innerText = '👎 ' + data.counts.TotalNegativo;
 
                         // Atualiza o estado visual dos botões
                         document.getElementById('vote-positivo').className = 'btn btn-lg me-2 ' + 
                             (tipoVoto === 'positivo' ? 'btn-success' : 'btn-outline-success');
-                        document.getElementById('vote-negativo').className = 'btn btn-lg me-3 ' + 
-                            (tipoVoto === 'negativo' ? 'btn-danger' : 'btn-outline-danger');
+                        //document.getElementById('vote-negativo').className = 'btn btn-lg me-3 ' + 
+                            //(tipoVoto === 'negativo' ? 'btn-danger' : 'btn-outline-danger');
                         
                         // alert(data.message); // Opcional
                     } else {

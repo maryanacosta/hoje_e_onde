@@ -1,37 +1,36 @@
-/*
- * Tema: Simples, Chique e Vibrante
- * Paleta: Laranja Queimado/Ouro Velho (para destaque), Cinza Escuro (fundo), Branco (conteúdo).
- */
-
-/* --- 1. Reset Básico e Fontes --- */
 body {
-    /* Fundo suave para contrastar com os cards de evento */
-    background-color: #f8f8f8; /* Cinza muito claro */
+    background-color: #f8f8f8; 
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color: #333; /* Texto principal em cinza escuro */
+    color: #333;
 }
 
-/* --- 2. Cabeçalho e Navegação Superior --- */
-
-/* Fundo do cabeçalho levemente mais escuro */
 header {
     background-color: #ffffff;
-    border-bottom: 2px solid #ffcc00; /* Linha sutil de destaque */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra sutil */
+    border-bottom: 2px solid #ff9900; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Cor dos botões de calendário e usuário */
-.btn-warning {
-    background-color: #ffaa00; /* Laranja/Ouro principal */
-    border-color: #ffaa00;
+.btn-main,
+.btn-main-bold {
+    background-color: #ff9900; /*99 do vegetti rs brinks*/
+    border-color: #ff9900;
     color: #ffffff;
-    font-weight: bold;
     transition: background-color 0.3s;
 }
+.btn-main:hover,
+.btn-main-bold:hover {
+    background-color: #d58610; 
+    border-color: #d58610;
+    color: #ffffff;
+}
+.btn-main-bold {
+    font-weight: bold;
+}
 
-.btn-warning:hover {
-    background-color: #e69500; /* Laranja mais escuro no hover */
-    border-color: #e69500;
+
+.bg-main { /*só cor de fundo, não precisa de hover*/
+    background-color: #ff9900 !important;
+    color: #ffffff !important;
 }
 
 /* Input de busca customizado */
@@ -43,7 +42,7 @@ header {
 
 /* Títulos principais da data */
 h3.text-warning {
-    color: #ffaa00 !important;
+    color: #ff9900 !important;
     font-weight: 700;
     font-size: 1.8rem;
 }
@@ -55,7 +54,7 @@ h3.text-warning {
     transition: color 0.3s;
 }
 .text-secondary:hover {
-    color: #ffaa00 !important;
+    color: #ff9900 !important;
 }
 
 /* Estilo dos Cards de Evento */
@@ -92,7 +91,7 @@ h3.text-warning {
 
 /* Título dos formulários */
 .container h2.text-warning {
-    color: #ffaa00 !important;
+    color: #ff9900 !important;
     border-bottom: 2px solid #ffcc00;
     padding-bottom: 10px;
 }
@@ -120,13 +119,13 @@ h3.text-warning {
     background-color: #ffffff;
     padding: 20px;
     border-radius: 12px;
-    border-left: 5px solid #ffaa00; /* Linha de destaque para organização (cor primária) */
+    border-left: 5px solid #ff9900; /* Linha de destaque para organização (cor primária) */
     margin-bottom: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .detail-info-group h4 {
-    color: #ffaa00; /* Títulos menores na cor do tema */
+    color: #ff9900; /* Títulos menores na cor do tema */
     font-weight: 600;
     font-size: 1.15rem;
 }
