@@ -2,9 +2,9 @@
 /node_modules
 
 # Arquivos de banco de dados SQLite
-*.db
-*.sqlite
-*.sqlite3
+#*.db
+#*.sqlite
+#*.sqlite3
 
 # Logs
 npm-debug.log*
