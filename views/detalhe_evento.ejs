@@ -24,8 +24,14 @@
             </div>
         <% } else { %>
             <div class="card shadow-lg border-0">
-                <% /* Imagem de banner - ajuste a URL conforme a sua estrutura */ %>
-                <img src="/img/<%= evento.imagem || 'default_event_large.jpg' %>" class="card-img-top event-banner" alt="Banner do Evento">
+                <div class="position-relative" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalImagem">
+                    <img src="/img/<%= evento.imagem || 'default_event_large.jpg' %>" 
+                        class="card-img-top event-banner" 
+                        alt="Banner do Evento">
+                    <span class="position-absolute top-0 end-0 m-3 badge bg-dark bg-opacity-75 fs-6 shadow-sm">
+                        Clique para ampliar
+                    </span>
+                </div>
                 
                 <div class="card-body p-md-5">
                     <h1 class="card-title text-warning mb-3"><%= evento.titulo %></h1>
@@ -164,6 +170,20 @@
             });
         });
     </script>
+    <% } %> <!-- fim do isLogged -->
+    <!-- modal p expandir a imagem -->
+    <% if (evento) { %> <div class="modal fade" id="modalImagem" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl"> 
+            <div class="modal-content bg-transparent border-0"> 
+                <div class="modal-header border-0">
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="/img/<%= evento.imagem || 'default_event_large.jpg' %>" class="img-fluid rounded" alt="Imagem Ampliada">
+                </div>
+            </div>
+        </div>
+    </div>
     <% } %>
 </body>
 </html>
