@@ -114,7 +114,7 @@
             const offset = primeiroDia.getDay(); 
             const diasDaSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
-            // Estruturar eventos por dia para acesso rápido
+            // organiza os eventos por dia
             const eventosPorDia = {};
             const hoje = new Date().toLocaleDateString('pt-BR', {
                 timeZone: 'America/Sao_Paulo' 
@@ -131,7 +131,7 @@
                 }
             });
 
-            // Lógica de navegação: Mês anterior e posterior
+            // links para navegação entre os meses
             const mesAnterior = new Date(mesAtivoData); mesAnterior.setMonth(mesIndex - 1);
             const mesPosterior = new Date(mesAtivoData); mesPosterior.setMonth(mesIndex + 1);
             const linkAnterior = `/calendario?mes=${mesAnterior.toISOString().slice(0, 7)}`;
