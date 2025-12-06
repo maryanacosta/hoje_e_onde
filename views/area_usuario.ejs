@@ -65,6 +65,7 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
         document.querySelectorAll('.remover-salvo-btn').forEach(button => {
@@ -72,32 +73,69 @@
                 e.preventDefault(); 
                 e.stopPropagation(); 
 
-                if (!confirm('Tem certeza que deseja remover este evento da sua lista?')) {
-                    return;
-                }
-
                 const eventoId = this.getAttribute('data-evento-id');
                 const elementoEvento = document.getElementById(`evento-salvo-${eventoId}`);
 
-                fetch('/remover-salvo', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ eventoId: eventoId })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    if (data.success) {
-                        // Remove o card da visualização
-                        if (elementoEvento) {
-                            elementoEvento.remove();
-                            // Opcional: Adicionar lógica para mostrar a mensagem de 'não salvou nenhum' se a lista ficar vazia
-                        }
+               // pergunta de confirmação antes de remover evento da lista de salvos
+                Swal.fire({
+                    title: 'Tem certeza?',
+                    text: "Você deseja remover este evento dos seus salvos?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545', 
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sim, remover.',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    // se o usuário confirmou
+                    if (result.isConfirmed) {
+                        
+                        // faz a requisição para remover o evento salvo
+                        fetch('/remover-salvo', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ eventoId: eventoId })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // sucesso na remoção
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Removido!',
+                                    text: data.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+
+                                // remove o elemento da lista visualmente
+                                if (elementoEvento) {
+                                    elementoEvento.style.transition = 'all 0.5s ease';
+                                    elementoEvento.style.opacity = '0';
+                                    elementoEvento.style.transform = 'scale(0.9)';
+                                    
+                                    setTimeout(() => {
+                                        elementoEvento.remove();
+                                    }, 500);
+                                }
+                            } else {
+                                // se houve falha na remoção
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Ops...',
+                                    text: data.message
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro',
+                                text: 'Erro de conexão ao tentar remover.'
+                            });
+                        });
                     }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Ocorreu um erro ao remover o evento.');
                 });
             });
         });
