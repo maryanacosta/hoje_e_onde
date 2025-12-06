@@ -51,53 +51,40 @@
             white-space: nowrap;
             text-overflow: ellipsis;
         }
+        /* Cores específicas para cada tipo de evento */
         .event-chip.Festa { background-color: #ffaa00; }
         .event-chip.Promocao { background-color: #0d6efd; }
         .event-chip.Oportunidade { background-color: #198754; }
         .event-chip.Outro { background-color: #6c757d; }
-        /* Para Evento Cultural/Social */
-        .event-chip.Evento { background-color: #dc3545; }
+        .event-chip.EventoCulturalSocial { background-color: #dc3545; }
 
         .today-cell {
             border: 2px solid #ffaa00; 
             box-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
         }
 
-        /* Novo: Estiliza o link da célula para cobrir a área */
         .day-cell-link {
             text-decoration: none;
             color: inherit;
         }
-
-        /* Novo: Garante que a célula-link se comporte como um item da grid */
         .day-cell-link, .day-cell {
             display: block;
             height: 100%;
         }
-
         .day-cell {
             min-height: 120px;
             padding: 5px;
             border: 1px solid #eee;
             background-color: #fff;
             position: relative;
-            cursor: pointer; /* Indica que é clicável */
+            cursor: pointer;
             transition: background-color 0.2s;
         }
-        
         .day-cell:hover {
-            /* Destaque visual ao passar o mouse */
             background-color: #f0f0f0; 
         }
-        
-        /* Novo: Estilo para células com eventos (opcional) */
-        .day-cell.has-event {
-            border-left: 3px solid #ffaa00; 
-        }
-        
         .event-chip {
-            /* ... Mantenha o restante do estilo do chip ... */
-            cursor: pointer; /* Mantém o cursor de clique */
+            cursor: pointer; 
         }
     </style>
 </head>
@@ -111,21 +98,21 @@
         <% 
             const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
             
-            // 1. Processar a data ativa
+            // processa a data do mês ativo
             const mesAtivoData = new Date(mesAtivo + "-01T00:00:00");
             const anoAtivo = mesAtivoData.getFullYear();
             const mesIndex = mesAtivoData.getMonth();
             const nomeMes = meses[mesIndex] + " de " + anoAtivo;
 
-            // 2. Preparar dados para o calendário
+            // determina o primeiro e o último dia do mês ativo
             const primeiroDia = new Date(anoAtivo, mesIndex, 1);
             const ultimoDia = new Date(anoAtivo, mesIndex + 1, 0);
             const diasNoMes = ultimoDia.getDate();
             
-            // Ajustar o dia de início (0=Dom, 1=Seg, ..., 6=Sab). Subtrai 1 para começar a semana na Segunda.
-            // Para JS: 0=Dom. Se quisermos Seg=0: (primeiroDia.getDay() + 6) % 7.
-            const offset = (primeiroDia.getDay() + 6) % 7; 
-            const diasDaSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+            // ajusta o dia de início (0=Dom, 1=Seg, ..., 6=Sab)
+            // domingo já é 0 em JS
+            const offset = primeiroDia.getDay(); 
+            const diasDaSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
             // Estruturar eventos por dia para acesso rápido
             const eventosPorDia = {};
