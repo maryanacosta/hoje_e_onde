@@ -177,76 +177,88 @@ app.get('/logout', (req, res) => {
 
 // --- ROTA PRINCIPAL (Home) ---
 app.get('/', (req, res) => {
-    let dataBusca = req.query.data; //req.query.data pega a data da URL
-    if (!dataBusca) { // 
+    let dataBusca = req.query.data; //req.query.data pega a data da URL. dataBusca serve para filtrar os eventos
+    if (!dataBusca) { // se não tiver data na URL, usa a data de hoje
         dataBusca = getDataHojeBrasil();
     }
-
+    const termoBusca = req.query.busca; // pega o termo de busca da URL
     const ordenarPor = req.query.ordenar || 'horario';
     const filtrarPorTipo = req.query.tipo || 'todos';
 
-    const dataAtual = new Date(dataBusca + 'T12:00:00'); // começa do meio dia
-    
-    const dataAnterior = new Date(dataAtual); 
-    dataAnterior.setDate(dataAtual.getDate() - 1);
-    
-    const dataPosterior = new Date(dataAtual); 
-    dataPosterior.setDate(dataAtual.getDate() + 1);
-
+    // cálculo de datas para navegação
+    const dataAtual = new Date(dataBusca + 'T12:00:00'); 
+    const dataAnterior = new Date(dataAtual); dataAnterior.setDate(dataAtual.getDate() - 1);
+    const dataPosterior = new Date(dataAtual); dataPosterior.setDate(dataAtual.getDate() + 1);
     const formatarExibicao = (data) => data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-    const formatarLink = (data) => data.toISOString().slice(0, 10); // AAAA-MM-DD
+    const formatarLink = (data) => data.toISOString().slice(0, 10);
 
-    let orderByClause = '';
-    let whereTipoClause = '';
-    const queryParams = [dataBusca]; 
+    // montagem da query SQL
+    let baseQuery = `
+        SELECT 
+            e.*, 
+            SUM(CASE WHEN v.tipoVoto = 'positivo' THEN 1 ELSE 0 END) AS TotalPositivo,
+            SUM(CASE WHEN v.tipoVoto = 'negativo' THEN 1 ELSE 0 END) AS TotalNegativo
+        FROM eventos e
+        LEFT JOIN votos v ON e.id = v.eventoId
+        WHERE e.aprovado = 1
+    `;
 
+    let queryParams = [];
+
+    if (termoBusca) { // se o usuario estiver buscando por algo
+        // procura no título ou descrição e ignora a data
+        baseQuery += ` AND (e.titulo LIKE ? OR e.descricao LIKE ?)`;
+        queryParams.push(`%${termoBusca}%`, `%${termoBusca}%`);
+    } else {
+        // ou filtra pela data específica
+        baseQuery += ` AND e.data = ?`;
+        queryParams.push(dataBusca);
+    }
+
+    // filtro por tipo
+    if (filtrarPorTipo !== 'todos') {
+        baseQuery += ' AND e.tipo = ?'; 
+        queryParams.push(filtrarPorTipo);
+    }
+
+    // ordenação
+    baseQuery += ` GROUP BY e.id `;
+    
     switch (ordenarPor) {
         case 'popularidade':
-            orderByClause = 'ORDER BY (TotalPositivo - TotalNegativo) DESC, duracao ASC'; 
+            baseQuery += 'ORDER BY (TotalPositivo - TotalNegativo) DESC, duracao ASC'; 
             break;
         case 'tipo':
-            orderByClause = 'ORDER BY tipo ASC, duracao ASC';
+            baseQuery += 'ORDER BY tipo ASC, duracao ASC';
             break;
         case 'horario':
         default:
-            orderByClause = 'ORDER BY duracao ASC';
+            baseQuery += 'ORDER BY duracao ASC';
             break;
     }
-    
-    if (filtrarPorTipo !== 'todos') {
-        whereTipoClause = ' AND e.tipo = ?'; 
-        queryParams.push(filtrarPorTipo);
-    }
-    
-    // busca os tipos de evento para o filtro
+
+    // execução da query
     db.all('SELECT nome FROM tipos_evento', (err, tipos) => {
         const tiposDisponiveis = tipos ? tipos.map(t => t.nome) : [];
 
-        const baseQuery = `
-            SELECT 
-                e.*, 
-                SUM(CASE WHEN v.tipoVoto = 'positivo' THEN 1 ELSE 0 END) AS TotalPositivo,
-                SUM(CASE WHEN v.tipoVoto = 'negativo' THEN 1 ELSE 0 END) AS TotalNegativo
-            FROM eventos e
-            LEFT JOIN votos v ON e.id = v.eventoId
-            WHERE e.aprovado = 1 AND e.data = ? ${whereTipoClause}
-            GROUP BY e.id
-            ${orderByClause}
-        `;
-        
-        db.all(baseQuery, queryParams, (err, eventosDoDia) => {
+        db.all(baseQuery, queryParams, (err, eventosEncontrados) => {
             if (err) { 
                 console.error('Erro ao buscar eventos:', err.message); 
-                eventosDoDia = []; 
+                eventosEncontrados = []; 
             }
             
             res.render('index', { 
-                eventos: eventosDoDia,
+                eventos: eventosEncontrados,
                 isLogged: req.session.isLogged,
                 userName: req.session.userNome,
                 userTipo: req.session.userTipo || 'visitante',
-                dataBuscaAtiva: dataBusca,
-                dataExibicao: formatarExibicao(dataAtual), // DD/MM
+                
+                // manda informações do back para o front sobre a busca atual
+                dataBuscaAtiva: dataBusca, // data que está sendo buscada
+                buscaAtiva: termoBusca, // não apaga oq foi digitado depois do enter
+                
+                dataExibicao: termoBusca ? `Resultados para: "${termoBusca}"` : formatarExibicao(dataAtual), 
+                
                 linkAnterior: `/?data=${formatarLink(dataAnterior)}&ordenar=${ordenarPor}&tipo=${filtrarPorTipo}`,
                 linkPosterior: `/?data=${formatarLink(dataPosterior)}&ordenar=${ordenarPor}&tipo=${filtrarPorTipo}`,
                 exibicaoAnterior: formatarExibicao(dataAnterior),
