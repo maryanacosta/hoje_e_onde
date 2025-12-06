@@ -89,41 +89,50 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <% if (isLogged && evento) { %>
     <script>
-        // CORREÇÃO APLICADA AQUI
         const eventoId = parseInt('<%= evento.id %>', 10);
         
-        // --- Lógica de Votação ---
-        document.querySelectorAll('#vote-positivo').forEach(button => { // tirei o #vote-negativo
+        // --- lógica de votação ---
+        document.querySelectorAll('#vote-positivo').forEach(button => { 
             button.addEventListener('click', function() {
-                const tipoVoto = this.getAttribute('data-voto');
-                
                 fetch('/votar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ eventoId: eventoId, tipoVoto: tipoVoto })
+                    body: JSON.stringify({ eventoId: eventoId })
                 })
-                .then(response => response.json())
-                .then(data => {
+                .then(response => { // verifica se houve redirecionamento para login
+                    if(response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => { // trata a resposta
                     if (data.success) {
-                        // Atualiza a contagem visual
-                        document.querySelector('.bg-success.fs-5').innerText = '👍 ' + data.counts.TotalPositivo;
-                        //document.querySelector('.bg-danger.fs-5').innerText = '👎 ' + data.counts.TotalNegativo;
+                        // atualiza o contador de likes
+                        const badgeContador = document.querySelector('.badge.bg-success.fs-5');
+                        if (badgeContador) {
+                            badgeContador.innerText = '👍 ' + data.counts.TotalPositivo;
+                        }
 
-                        // Atualiza o estado visual dos botões
-                        document.getElementById('vote-positivo').className = 'btn btn-lg me-2 ' + 
-                            (tipoVoto === 'positivo' ? 'btn-success' : 'btn-outline-success');
-                        //document.getElementById('vote-negativo').className = 'btn btn-lg me-3 ' + 
-                            //(tipoVoto === 'negativo' ? 'btn-danger' : 'btn-outline-danger');
+                        // atualiza a cor do botão
+                        const btnGosto = document.getElementById('vote-positivo');
                         
-                        // alert(data.message); // Opcional
+                        if (data.acao === 'adicionado') { // se o usuario deu like
+                            // fica verde
+                            btnGosto.classList.remove('btn-outline-success');
+                            btnGosto.classList.add('btn-success');
+                        } else if (data.acao === 'removido') { // se ele tira
+                            // fica branco
+                            btnGosto.classList.remove('btn-success');
+                            btnGosto.classList.add('btn-outline-success');
+                        }
                     } else {
-                        // Caso seja um voto repetido sem alteração
-                        // alert(data.message); // Opcional
+                        // em caso de falha
+                        alert(data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Erro ao votar:', error);
-                    alert('Ocorreu um erro ao registrar seu voto.');
                 });
             });
         });

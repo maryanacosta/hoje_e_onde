@@ -294,37 +294,59 @@ app.post('/salvar-evento', requireLogin, (req, res) => {
     });
 });
 
+// --- ROTA DE LIKE ---
 app.post('/votar', requireLogin, (req, res) => {
-    const { eventoId, tipoVoto } = req.body; 
+    const { eventoId } = req.body; 
     const usuarioId = req.session.userId;
+    const tipoVoto = 'positivo'; // como o site só tem Like, forçamos o positivo
 
-    const query = `
-        INSERT INTO votos (usuarioId, eventoId, tipoVoto) 
-        VALUES (?, ?, ?)
-        ON CONFLICT(usuarioId, eventoId) DO UPDATE SET tipoVoto = excluded.tipoVoto
-        WHERE tipoVoto != excluded.tipoVoto;
-    `;
-    
-    db.run(query, [usuarioId, eventoId, tipoVoto], function(err) {
+    // verificando se o usuário já votou nesse evento
+    db.get('SELECT id FROM votos WHERE usuarioId = ? AND eventoId = ?', [usuarioId, eventoId], (err, votoExistente) => {
         if (err) {
-            console.error('Erro ao votar:', err.message);
-            return res.status(500).json({ success: false, message: 'Erro ao registrar o voto.' });
+            console.error('Erro ao verificar voto:', err.message);
+            return res.status(500).json({ success: false, message: 'Erro interno.' });
         }
 
-        if (this.changes > 0) {
-            const countQuery = `
-                SELECT 
-                    SUM(CASE WHEN tipoVoto = 'positivo' THEN 1 ELSE 0 END) AS TotalPositivo,
-                    SUM(CASE WHEN tipoVoto = 'negativo' THEN 1 ELSE 0 END) AS TotalNegativo
-                FROM votos WHERE eventoId = ?
-            `;
-            db.get(countQuery, [eventoId], (err, counts) => {
-                if (err) return res.json({ success: true, message: 'Voto registrado/alterado, mas erro ao recontar.' });
-                res.json({ success: true, message: 'Voto registrado com sucesso!', counts: counts });
-            });
+        let query = '';
+        let params = [];
+        let acaoRealizada = '';
+
+        if (votoExistente) {
+            // se clicou em "gosto" novamente, remove o like
+            query = 'DELETE FROM votos WHERE usuarioId = ? AND eventoId = ?';
+            params = [usuarioId, eventoId];
+            acaoRealizada = 'removido';
         } else {
-             res.status(200).json({ success: false, message: 'Você já tinha votado dessa forma neste evento.', counts: {} });
+            // clicou em "gosto" pela 'primeira vez', adiciona o like
+            query = 'INSERT INTO votos (usuarioId, eventoId, tipoVoto) VALUES (?, ?, ?)';
+            params = [usuarioId, eventoId, tipoVoto];
+            acaoRealizada = 'adicionado';
         }
+
+        // execução
+        db.run(query, params, function(err) {
+            if (err) {
+                console.error('Erro ao processar like:', err.message);
+                return res.status(500).json({ success: false, message: 'Erro ao registrar.' });
+            }
+
+            // reconta os likes atualizados 
+            const countQuery = `
+                SELECT COUNT(*) as TotalPositivo FROM votos WHERE eventoId = ? AND tipoVoto = 'positivo'
+            `;
+            
+            // obtém a contagem atualizada
+            db.get(countQuery, [eventoId], (err, row) => {
+                if (err) return res.json({ success: true, message: 'Erro ao recontar.' });
+                
+                res.json({ 
+                    success: true, 
+                    message: acaoRealizada === 'removido' ? 'Like removido.' : 'Like registrado!', 
+                    counts: { TotalPositivo: row.TotalPositivo }, 
+                    acao: acaoRealizada
+                });
+            });
+        });
     });
 });
 

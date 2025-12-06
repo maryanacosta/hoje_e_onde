@@ -106,8 +106,11 @@ rounded shadow-sm">
                             <div class="card-body pb-1">
                
                                 <% if (evento.id) { %>
-                                    <span class="badge bg-success me-1">👍 <%= evento.TotalPositivo || 0 %></span>
-                                    <!--<span class="badge bg-danger me-2">👎 <%= evento.TotalNegativo || 0 %></span> pensando em tirar dislike msm -->
+                                    <span class="badge bg-success me-1 voting-span" 
+                                        data-evento-id="<%= evento.id %>" 
+                                        style="cursor: pointer; user-select: none;">
+                                        👍 <span class="contador-likes"><%= evento.TotalPositivo || 0 %></span>
+                                    </span>
                                 <% } %>
                                 <span class="badge bg-main mb-1"><%= evento.tipo %></span>
                                 <h5 class="card-title"><%= evento.titulo %></h5>
