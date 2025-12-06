@@ -37,10 +37,12 @@ function initializeDatabase() {
         if (rows.length > 0) {
             console.log('Eventos iniciais encontrados. Atualizando datas para hoje...'); // eventos que já existem, apenas atualiza a data pra hoje
             
-            const updateQuery = `UPDATE eventos SET data = ? WHERE organizadorId = 0`;
-            db.run(updateQuery, [dataAtual], function(err) {
-                if (err) console.error('Erro ao atualizar datas:', err.message);
-                else console.log(`Datas atualizadas com sucesso para ${this.changes} eventos.`);
+            const updateQuery = `UPDATE eventos SET data = ?, descricao = ? WHERE organizadorId = 0`;
+
+            // passamos a data atual e uma string vazia '' para a descrição
+            db.run(updateQuery, [dataAtual, ''], function(err) {
+                if (err) console.error('Erro ao atualizar eventos padrão:', err.message);
+                else console.log(`Eventos padrão atualizados com sucesso.`);
             });
 
         } else { // se não tem eventos iniciais, cria novos
@@ -54,7 +56,7 @@ function initializeDatabase() {
                 `;
                 const values = [
                     evento.titulo, 
-                    'Descrição detalhada do evento inicial.', 
+                    '', 
                     dataAtual, 
                     evento.duracao, 
                     evento.local, 
