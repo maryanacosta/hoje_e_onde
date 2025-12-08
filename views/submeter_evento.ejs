@@ -10,61 +10,100 @@
 </head>
 <body>
     <div class="container my-5" style="max-width: 700px;">
-        <h2 class="text-warning mb-4">Submeter Novo Evento ou Promoção</h2>
-        <p>Preencha os detalhes para divulgação. Seu post será revisado antes da publicação. </p>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-warning">Submeter Evento</h2>
+            <a href="/" class="btn btn-outline-secondary">Cancelar e Voltar</a>
+        </div>
         
-        <form method="POST" action="/submeter-evento" enctype="multipart/form-data">
+        <div class="card shadow-sm p-4 border-0">
+            <p class="text-muted">Preencha os detalhes para divulgação. Seu post passará por revisão antes de ser publicado.</p>
             
-            <div class="mb-3">
-                <label for="titulo" class="form-label">Título do Evento:</label>
-                <input type="text" class="form-control" id="titulo" name="titulo" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="tipo" class="form-label">Tipo:</label>
-                <select class="form-select" id="tipo" name="tipo" required>
-                    <option value="">Selecione o Tipo</option>
-                    <option value="Festa">Festa</option>
-                    <option value="Evento Cultural/Social">Evento Cultural/Social</option>
-                    <option value="Promoção">Promoção</option>
-                    <option value="Oportunidade">Oportunidade</option>
-                    <option value="Outro">Outro</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="local" class="form-label">Local:</label>
-                <input type="text" class="form-control" id="local" name="local" required>
-            </div>
-
-            <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                    <label for="data" class="form-label">Data de Ocorrência:</label>
-                    <input type="date" class="form-control" id="data" name="data" required>
+            <form method="POST" action="/submeter-evento" enctype="multipart/form-data">
+                
+                <div class="mb-3">
+                    <label for="titulo" class="form-label">Título do Evento:</label>
+                    <input type="text" class="form-control" id="titulo" name="titulo" minlength="3" maxlength="100" required placeholder="Ex: Show de Rock no Bar X">
                 </div>
-                <div class="col-md-6">
-                    <label for="duracao" class="form-label">Duração/Horário (Ex: 20:00, ou 10h-22h):</label>
-                    <input type="text" class="form-control" id="duracao" name="duracao">
+
+                <div class="mb-3">
+                    <label for="tipo" class="form-label">Tipo:</label>
+                    <select class="form-select" id="tipo" name="tipo" required>
+                        <option value="">Selecione o Tipo</option>
+                        <option value="Festa">Festa</option>
+                        <option value="Evento Cultural/Social">Evento Cultural/Social</option>
+                        <option value="Promoção">Promoção</option>
+                        <option value="Oportunidade">Oportunidade</option>
+                        <option value="Outro">Outro</option>
+                    </select>
                 </div>
-            </div>
 
-            <div class="mb-3">
-                <label for="descricao" class="form-label">Descrição Detalhada:</label>
-                <textarea class="form-control" id="descricao" name="descricao" rows="3" required></textarea>
-            </div>
-            
-            <div class="mb-3">
-                <label for="publicoAlvo" class="form-label">Público Alvo:</label>
-                <input type="text" class="form-control" id="publicoAlvo" name="publicoAlvo">
-            </div>
-            
-            <div class="mb-3">
-                <label for="banner" class="form-label">Banner/Imagem do Evento (Opcional):</label>
-                <input type="file" class="form-control" id="banner" name="banner" accept="image/*">
-            </div>
+                <div class="mb-3">
+                    <label for="local" class="form-label">Local:</label>
+                    <input type="text" class="form-control" id="local" name="local" minlength="3" required placeholder="Onde vai acontecer?">
+                </div>
 
-            <button type="submit" class="btn btn-main mt-3">Submeter para Aprovação</button>
-        </form>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="data" class="form-label">Data de ocorrência:</label>
+                        <input type="date" class="form-control" id="data" name="data" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="inicio" class="form-label">Horário de início:</label>
+                        <input type="time" class="form-control" id="inicio" name="inicio" required> <!--o html5 fornece um visual bonitinho de scroll-->
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="descricao" class="form-label">Descrição (opcional):</label>
+                    <textarea class="form-control" id="descricao" name="descricao" rows="3" placeholder="Conte mais sobre o evento"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="publicoAlvo" class="form-label">Público alvo (opcional):</label>
+                    <input type="text" class="form-control" id="publicoAlvo" name="publicoAlvo" placeholder="Ex: Estudantes, Famílias...">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="banner" class="form-label">Banner/Imagem:</label>
+                    <input type="file" class="form-control" id="banner" name="banner" accept="image/png, image/jpeg, image/jpg" required>
+                    <div class="form-text">Formatos aceitos: JPG, JPEG, PNG.</div>
+                </div>
+
+                <button type="submit" class="btn btn-main w-100 mt-3 btn-lg">Enviar para Aprovação</button>
+            </form>
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // script para impedir datas no passado
+        const dataInput = document.getElementById('data');
+        const hoje = new Date().toISOString().split('T')[0];
+        dataInput.setAttribute('min', hoje);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+
+        // mostra popup de sucesso ou erro baseado no status na URL
+        if (status === 'sucesso') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Recebido!',
+                text: 'Seu evento foi enviado com sucesso e está aguardando aprovação.',
+                confirmButtonText: 'Ótimo!',
+                confirmButtonColor: '#ffaa00'
+            }).then(() => {
+                window.history.replaceState(null, null, window.location.pathname);
+            });
+        } else if (status === 'erro') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Ops...',
+                text: 'Houve um erro ao enviar seu evento. Tente novamente.',
+            });
+        }
+    </script>
 </body>
 </html>

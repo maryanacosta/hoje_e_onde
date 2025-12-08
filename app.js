@@ -493,25 +493,28 @@ app.get('/submeter-evento', requireLogin, (req, res) => { res.render('submeter_e
 app.post('/submeter-evento', requireLogin, upload.single('banner'), (req, res) => {
     // req.file contém informações sobre o arquivo se houver upload
     const nomeArquivo = req.file ? req.file.filename : null; 
-    
-    // Captura os dados do corpo (via Multer)
-    const { titulo, descricao, data, duracao, local, publicoAlvo, tipo } = req.body;
+    // extrai os dados do formulário
+    const { titulo, descricao, data, inicio, local, publicoAlvo, tipo } = req.body;
     const organizadorId = req.session.userId;
     
-    // SQL: Adiciona o campo 'imagem' na inserção
+    // adiciona o campo imagem na inserção
+    // antes o campo duracao era texto livre, agora é apenas a hora de início, mas continua duracao no banco de dados para manter compatibilidade
     const query = `
         INSERT INTO eventos 
         (titulo, descricao, data, duracao, local, publicoAlvo, tipo, organizadorId, imagem) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    const values = [titulo, descricao, data, duracao, local, publicoAlvo, tipo, organizadorId, nomeArquivo];
+    const values = [titulo, descricao, data, inicio, local, publicoAlvo, tipo, organizadorId, nomeArquivo];
 
+    // executa a inserção no banco de dados
     db.run(query, values, function(err) {
         if (err) { 
             console.error('Erro ao submeter evento:', err.message); 
-            return res.status(500).send('Erro interno ao salvar o evento.'); 
+            // se der erro, redireciona com status de erro
+            return res.redirect('/submeter-evento?status=erro'); 
         }
-        res.send(`<h1>Sucesso!</h1><p>Evento submetido com sucesso! Ele passará por aprovação administrativa antes de ser publicado.</p><a href="/">Voltar para a página inicial</a>`);
+        // redireciona com status de sucesso
+        res.redirect('/submeter-evento?status=sucesso');
     });
 });
 

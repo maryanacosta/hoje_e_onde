@@ -10,8 +10,8 @@
 </head>
 <body>
     <div class="container my-5">
-        <h2 class="text-warning mb-4">👑 Painel de Administração</h2>
-        <p class="text-muted">Bem-vindo, <%= userName %>. Gerencie a aprovação de eventos e a equipe administrativa.</p>
+        <h2 class="text-warning mb-4">Painel de Administração</h2>
+        <p class="text-muted">Bem-vindo(a), <%= userName %>. Gerencie a aprovação de eventos e a equipe administrativa.</p>
         
         <div class="d-flex justify-content-between mb-4">
             <a href="/" class="btn btn-outline-secondary">← Voltar para a Home</a>
@@ -38,7 +38,7 @@
                                 Enviado por: <%= evento.organizadorNome %>
                             </p>
                             <p class="mb-0 small text-muted">
-                                Data: <%= evento.data %> | Local: <%= evento.local %>
+                                Data: <%= evento.data %> | Início: <%= evento.duracao %> | Local: <%= evento.local %>
                             </p>
                             <details class="mt-2">
                                 <summary class="small">Ver Descrição Detalhada</summary>

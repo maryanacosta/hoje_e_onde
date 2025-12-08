@@ -42,7 +42,7 @@
                         <div class="col-md-6">
                             <h4>📅 Data e Hora</h4>
                             <p class="mb-1"><strong>Data:</strong> <%= new Date(evento.data).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
-                            <p class="mb-1"><strong>Horário/Duração:</strong> <%= evento.duracao || 'Não informado' %></p>
+                            <p class="mb-1"><strong>Horário de início:</strong> <%= evento.duracao || 'Não informado' %></p> <!--continua como duracao no banco de dados-->
                         </div>
                         <div class="col-md-6">
                             <h4>📍 Local</h4>

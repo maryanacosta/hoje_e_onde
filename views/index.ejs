@@ -33,14 +33,14 @@
                 </form>
                 
                 <% if (isLogged) { %>
+                    <a href="/submeter-evento" class="btn btn-outline-secondary me-2">Submeter Evento</a>
+
                     <div class="dropdown">
                         <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Olá, <%= userName %> 👤
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="/area-usuario">Minha Área</a></li>
-                            <li><a class="dropdown-item" href="/submeter-evento">Submeter Evento</a></li> 
-    
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="/logout">Sair</a></li>
                             
@@ -48,7 +48,6 @@
                                 <li><a class="dropdown-item text-danger" href="/admin">Painel Admin</a></li>
                             <% } %>
                         </ul>
-        
                     </div>
                 <% } else { %>
                     <a href="/login" class="btn btn-outline-secondary me-2">Login</a>
@@ -108,7 +107,9 @@
                           
                                 <p class="card-text">
                                     <small class="text-muted">📍 <%= evento.local %></small><br>
-                                    <small class="text-muted">🕒 <%= evento.duracao %></small>
+                                    <small class="text-muted">
+                                        📅 <%= evento.data.split('-').reverse().join('/') %> • 🕒 <%= evento.duracao %>
+                                    </small>
                                 </p>
                             </div>
                         </a>
