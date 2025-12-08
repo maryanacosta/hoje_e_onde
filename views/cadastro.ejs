@@ -4,27 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - Hoje É Onde?</title>
+    <link rel="icon" href="/img/favicon.png" type="image/png">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css"> 
+    
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <div class="container my-5" style="max-width: 600px;">
-        <h2 class="text-warning mb-4">Cadastre-se para Publicar e Salvar Eventos</h2>
-        
-        <% if (typeof erro !== 'undefined' && erro) { %>
-            <div class="alert alert-danger" role="alert">
-                <strong><%= erro %></strong>
-            </div>
-        <% } %>
-        
-        <form method="POST" action="/cadastro" id="cadastroForm">
-            <div class="row g-3">
-                
-                <div class="col-md-12">
-                    <label for="nomeCompleto" class="form-label">Nome Completo:</label>
-                    <input type="text" class="form-control" id="nomeCompleto" name="nomeCompleto" required>
-                </div>
+        <a href="/" class="btn btn-outline-secondary mb-4">← Voltar para a Home</a>
 
+        <h2 class="text-warning mb-4">Novo Cadastro de Usuário</h2>
+        
+        <form id="cadastroForm" method="POST" action="/cadastro" novalidate>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="nomeCompleto" class="form-label">Nome Completo:</label>
+                    <input type="text" class="form-control" id="nomeCompleto" name="nomeCompleto" minlength="3" required placeholder="Ex: Maria Silva" oninput="this.value = this.value.replace(/[^A-Za-zÀ-ÿ\s]/g, '')"">
+                </div>
                 <div class="col-md-6">
                     <label for="genero" class="form-label">Gênero (Opcional):</label>
                     <select class="form-select" id="genero" name="genero">
@@ -34,142 +31,135 @@
                         <option value="O">Outro</option>
                     </select>
                 </div>
-                
-                <div class="col-md-6">
-                    <label for="celular" class="form-label">Celular:</label>
-                    <input type="tel" class="form-control" id="celular" name="celular" required>
-                </div>
-
                 <div class="col-md-6">
                     <label for="email" class="form-label">E-mail:</label>
-                    <input type="email" class="form-control" id="email" name="email" required>
+                    <input type="email" class="form-control" id="email" name="email" required placeholder="seu@email.com">
                 </div>
-
                 <div class="col-md-6">
                     <label for="cpf_cnpj" class="form-label">CPF ou CNPJ:</label>
-                    <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj" required>
-                    <div class="invalid-feedback" id="cpfCnpjFeedback">
-                        CPF/CNPJ inválido. Por favor, verifique o número.
+                    <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj" maxlength="18" required placeholder="Apenas números">
+
+                    <div class="invalid-feedback">
+                        CPF ou CNPJ inválido. Verifique os números.
                     </div>
                 </div>
-
                 <div class="col-12">
                     <label for="endereco" class="form-label">Endereço:</label>
                     <input type="text" class="form-control" id="endereco" name="endereco" required>
                 </div>
-
                 <div class="col-md-4">
                     <label for="cidade" class="form-label">Cidade:</label>
                     <input type="text" class="form-control" id="cidade" name="cidade" required>
                 </div>
-
                 <div class="col-md-4">
-                    <label for="estado" class="form-label">Estado:</label>
-                    <input type="text" class="form-control" id="estado" name="estado" required>
+                    <label for="estado" class="form-label">Estado (UF):</label>
+                    <select class="form-select" id="estado" name="estado" required>
+                        <option value="" selected disabled>UF</option>
+                        <option value="AC">AC</option> <option value="AL">AL</option> <option value="AP">AP</option> <option value="AM">AM</option> <option value="BA">BA</option> <option value="CE">CE</option> <option value="DF">DF</option> <option value="ES">ES</option> <option value="GO">GO</option> <option value="MA">MA</option> <option value="MT">MT</option> <option value="MS">MS</option> <option value="MG">MG</option> <option value="PA">PA</option> <option value="PB">PB</option> <option value="PR">PR</option> <option value="PE">PE</option> <option value="PI">PI</option> <option value="RJ">RJ</option> <option value="RN">RN</option> <option value="RS">RS</option> <option value="RO">RO</option> <option value="RR">RR</option> <option value="SC">SC</option> <option value="SP">SP</option> <option value="SE">SE</option> <option value="TO">TO</option>
+                    </select>
                 </div>
-
                 <div class="col-md-4">
                     <label for="cep" class="form-label">CEP:</label>
-                    <input type="text" class="form-control" id="cep" name="cep" required>
+                    <input type="text" class="form-control" id="cep" name="cep" pattern="\d{5}-?\d{3}" required>
                 </div>
-
-                <div class="col-md-12">
+                <div class="col-md-6">
+                    <label for="celular" class="form-label">Celular:</label>
+                    <input type="tel" class="form-control" id="celular" name="celular" minlength="11" maxlength="16" required placeholder="Ex: 31999999999" title="Por favor, digite o número completo com DDD (apenas números)" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                </div>
+                <div class="col-md-6">
                     <label for="senha" class="form-label">Senha:</label>
-                    <input type="password" class="form-control" id="senha" name="senha" required>
+                    <input type="password" class="form-control" id="senha" name="senha" minlength="8" required placeholder="Mínimo de 8 caracteres">
                 </div>
             </div>
             
-            <button type="submit" class="btn btn-warning w-100 mt-4">Criar Conta</button>
+            <button type="submit" class="btn btn-main mt-4">Cadastrar-se</button>
+            <p class="mt-3">Já tem conta? <a href="/login">Faça Login aqui.</a></p>
         </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // validação personalizada de CPF/CNPJ
         document.getElementById('cadastroForm').addEventListener('submit', function(event) {
+            const form = event.target;
             const cpfCnpjInput = document.getElementById('cpf_cnpj');
-            let isValid = true; 
+            
+            // remove caracteres não numéricos
+            const docLimpo = cpfCnpjInput.value.replace(/[^\d]+/g, '');
+            let isValid = true;
 
-            // Validação de CPF/CNPJ
-            const isCpfCnpjValid = validarCPFCNPJ(cpfCnpjInput.value);
-
-            // Controla as classes do Bootstrap: remove o verde, adiciona o vermelho ou vice-versa
-            if (!isCpfCnpjValid) {
-                cpfCnpjInput.classList.remove('is-valid');
-                cpfCnpjInput.classList.add('is-invalid');
-                isValid = false;
+            // valida matematicamente
+            if (docLimpo.length === 11) { // com 11 dígitos é CPF
+                isValid = validarCPF(docLimpo);
+            } else if (docLimpo.length === 14) { // com 14 dígitos é CNPJ
+                isValid = validarCNPJ(docLimpo);
             } else {
-                cpfCnpjInput.classList.remove('is-invalid');
-                cpfCnpjInput.classList.add('is-valid');
+                isValid = false; // tam errado
+            }
+
+            // aplica validação
+            if (!isValid) {
+                cpfCnpjInput.setCustomValidity("Inválido"); 
+                event.preventDefault(); 
+                event.stopPropagation();
+            } else {
+                cpfCnpjInput.setCustomValidity(""); 
             }
             
-            // Se a validação do CPF/CNPJ falhar, impede o envio e mostra os feedbacks
-            if (!isValid) {
-                event.preventDefault(); 
-                // Adiciona a classe 'was-validated' para forçar a exibição do erro em vermelho
-                event.currentTarget.classList.add('was-validated'); 
+            form.classList.add('was-validated');
+            
+            // se o formulário tiver outros erros, impede o envio
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
             }
         });
-        
-        // Funções de validação de CPF e CNPJ
 
-        function validarCPFCNPJ(doc) {
-            const num = doc.replace(/[^\d]+/g, '');
-
-            if (num.length === 11) {
-                return validarCPF(num);
-            } else if (num.length === 14) {
-                return validarCNPJ(num);
-            }
-            return false;
-        }
-
+        // funções de validação CPF/CNPJ
         function validarCPF(cpf) {
-            if (/^(\d)\1{10}$/.test(cpf)) return false; 
-            let sum = 0; let remainder;
+            if (/^(\d)\1{10}$/.test(cpf)) return false; // bloqueia sequências iguais 
+            let sum = 0; let remainder; 
+            // primeiro dígito verificador
             for (let i = 1; i <= 9; i++) sum = sum + parseInt(cpf.substring(i - 1, i)) * (11 - i);
-            remainder = (sum * 10) % 11;
-            if ((remainder == 10) || (remainder == 11)) remainder = 0;
-            if (remainder != parseInt(cpf.substring(9, 10))) return false;
-            sum = 0;
+            remainder = (sum * 10) % 11; 
+            if ((remainder == 10) || (remainder == 11)) remainder = 0; 
+            if (remainder != parseInt(cpf.substring(9, 10))) return false; // o número calculado tem que ser igual ao 10º dígito do cpf
+            sum = 0; // reseta soma
+            // segundo dígito verificador
             for (let i = 1; i <= 10; i++) sum = sum + parseInt(cpf.substring(i - 1, i)) * (12 - i);
             remainder = (sum * 10) % 11;
             if ((remainder == 10) || (remainder == 11)) remainder = 0;
-            if (remainder != parseInt(cpf.substring(10, 11))) return false;
+            if (remainder != parseInt(cpf.substring(10, 11))) return false; // o número calculado tem que ser igual ao 11º dígito do cpf
             return true;
         }
 
-function validarCNPJ(cnpj) {
-    if (/^(\d)\1{13}$/.test(cnpj)) return false; 
-
-    let size = cnpj.length - 2;
-    let numbers = cnpj.substring(0, size);
-    let digits = cnpj.substring(size);
-    let sum = 0;
-    let pos = size - 7;
-
-    for (let i = size; i >= 1; i--) {
-        sum += numbers.charAt(size - i) * pos--;
-        if (pos < 2) pos = 9;
-    }
-    
-    let result = sum % 11 < 2 ? 0 : 11 - sum % 11; 
-    if (result != digits.charAt(0)) return false;
-
-    size = size + 1;
-    numbers = cnpj.substring(0, size);
-    sum = 0;
-    pos = size - 7;
-    
-    for (let i = size; i >= 1; i--) {
-        sum += numbers.charAt(size - i) * pos--;
-        if (pos < 2) pos = 9;
-    }
-
-    result = sum % 11 < 2 ? 0 : 11 - sum % 11; 
-    if (result != digits.charAt(1)) return false;
-
-    return true;
-}
+        function validarCNPJ(cnpj) {
+            if (/^(\d)\1{13}$/.test(cnpj)) return false; // bloqueia sequências iguais
+            let size = cnpj.length - 2;
+            let numbers = cnpj.substring(0, size);
+            let digits = cnpj.substring(size);
+            let sum = 0;
+            // no cnpj os pesos vão de 2 a 9 e dps reiniciam. 
+            // para o primeiro dígito verificador, os pesos começam em 5 e vão descendo até 2, depois recomeçam em 9 e continuam descendo
+            let pos = size - 7;
+            for (let i = size; i >= 1; i--) {
+                sum += numbers.charAt(size - i) * pos--;
+                if (pos < 2) pos = 9;
+            }
+            let result = sum % 11 < 2 ? 0 : 11 - sum % 11; 
+            if (result != digits.charAt(0)) return false;
+            size = size + 1;
+            numbers = cnpj.substring(0, size);
+            sum = 0;
+            // para o segundo dígito verificador, os pesos começam em 6 e vão descendo até 2, depois recomeçam em 9 e continuam descendo
+            pos = size - 7;
+            for (let i = size; i >= 1; i--) {
+                sum += numbers.charAt(size - i) * pos--;
+                if (pos < 2) pos = 9;
+            }
+            result = sum % 11 < 2 ? 0 : 11 - sum % 11; 
+            if (result != digits.charAt(1)) return false;
+            return true;
+        }
     </script>
 </body>
 </html>
