@@ -15,7 +15,7 @@ function getDataHojeBrasil() {
     }).split('/').reverse().join('-');
 }
 
-// --- Funções de Inicialização de Dados (CORREÇÃO DE DUPLICAÇÃO E IMAGEM) ---
+// Funções de Inicialização de Dados
 
 // inicializa eventos padrão se não existirem
 // ao reiniciar o servidor, evita duplicações, mantém os eventos originais e os votos e salvamentos continuam
@@ -76,8 +76,6 @@ function initializeDatabase() {
     });
 }
 
-// app.js (Configuração Multer)
-
 // Configuração do Multer para armazenamento
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -95,7 +93,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
-// --- Middlewares de Configuração ---
+// Middlewares de Configuração
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 app.set('view engine', 'ejs');
@@ -110,7 +108,7 @@ app.use(session({
     cookie: { maxAge: 60 * 60 * 1000 }
 }));
 
-// --- Funções Auxiliares (Middlewares) ---
+// Funções Auxiliares (Middlewares) 
 function requireLogin(req, res, next) {
     if (req.session.isLogged) {
         next(); 
@@ -131,7 +129,7 @@ function requireAdmin(req, res, next) {
     });
 }
 
-// --- ROTAS DE AUTENTICAÇÃO (Cadastro/Login/Logout) ---
+// Rotas de autenticação (Cadastro/Login/Logout)
 app.get('/cadastro', (req, res) => { res.render('cadastro'); });
 app.post('/cadastro', (req, res) => {
     const { nomeCompleto, genero, email, cpf_cnpj, endereco, cidade, estado, celular, cep, senha } = req.body;
@@ -149,7 +147,6 @@ app.post('/cadastro', (req, res) => {
     });
 });
 app.get('/login', (req, res) => { res.render('login', { erro: req.query.erro }); });
-// app.js (Trecho da rota POST /login)
 
 app.post('/login', (req, res) => {
     const { email, senha } = req.body;
@@ -177,7 +174,7 @@ app.get('/logout', (req, res) => {
 });
 
 
-// --- ROTA PRINCIPAL (Home) ---
+// Rota principal (home)
 app.get('/', (req, res) => {
     let dataBusca = req.query.data; //req.query.data pega a data da URL. dataBusca serve para filtrar os eventos
     if (!dataBusca) { // se não tiver data na URL, usa a data de hoje
@@ -274,7 +271,7 @@ app.get('/', (req, res) => {
 });
 
 
-// --- ROTAS DE AÇÃO (Salvar, Votar, Detalhes) ---
+// Rotas de ação (Salvar, Votar, Detalhes)
 app.post('/salvar-evento', requireLogin, (req, res) => {
     const { eventoId } = req.body;
     const usuarioId = req.session.userId;
@@ -296,7 +293,7 @@ app.post('/salvar-evento', requireLogin, (req, res) => {
     });
 });
 
-// --- ROTA DE LIKE ---
+// Rota de like
 app.post('/votar', requireLogin, (req, res) => {
     const { eventoId } = req.body; 
     const usuarioId = req.session.userId;
@@ -352,12 +349,11 @@ app.post('/votar', requireLogin, (req, res) => {
     });
 });
 
-// ROTA POST: Cadastro de novo Administrador por um Admin
-// app.js (Encontre e substitua esta rota)
+// Rota post : Cadastro de novo Administrador por um Admin
 
-// ROTA POST: Cadastro de novo Administrador por um Admin
+// Rota post : Cadastro de novo Administrador por um Admin
 app.post('/admin/cadastrar-admin', requireAdmin, (req, res) => {
-    // ATUALIZADO: Captura todos os campos obrigatórios do formulário
+    // Atualizado: Captura todos os campos obrigatórios do formulário
     const { nomeCompleto, genero, email, cpf_cnpj, endereco, cidade, estado, celular, cep, senha } = req.body;
 
     // Criptografa a senha
@@ -435,7 +431,7 @@ app.get('/evento/:id', (req, res) => {
 });
 
 
-// --- A: ÁREA DO USUÁRIO (/area-usuario) ---
+// Área do usuário
 
 app.get('/area-usuario', requireLogin, (req, res) => {
     const usuarioId = req.session.userId;
@@ -486,9 +482,8 @@ app.post('/remover-salvo', requireLogin, (req, res) => {
     });
 });
 
-// --- ROTAS DE SUBMISSÃO E ADMIN ---
+// Rotas de submissão e adm
 app.get('/submeter-evento', requireLogin, (req, res) => { res.render('submeter_evento', { userName: req.session.userNome }); });
-// app.js (Sua rota POST de submissão de evento, totalmente substituída)
 
 app.post('/submeter-evento', requireLogin, upload.single('banner'), (req, res) => {
     // req.file contém informações sobre o arquivo se houver upload
@@ -498,7 +493,6 @@ app.post('/submeter-evento', requireLogin, upload.single('banner'), (req, res) =
     const organizadorId = req.session.userId;
     
     // adiciona o campo imagem na inserção
-    // antes o campo duracao era texto livre, agora é apenas a hora de início, mas continua duracao no banco de dados para manter compatibilidade
     const query = `
         INSERT INTO eventos 
         (titulo, descricao, data, duracao, local, publicoAlvo, tipo, organizadorId, imagem) 
@@ -542,9 +536,7 @@ app.post('/admin/aprovar', requireAdmin, (req, res) => {
     }
 });
 
-// app.js (Adicione esta nova rota junto com as outras rotas GET)
-
-// ROTA: Calendário de Eventos
+// rota: Calendário de Eventos
 app.get('/calendario', (req, res) => {
     // Busca todos os eventos aprovados para preencher o calendário
     const query = `
@@ -571,12 +563,12 @@ app.get('/calendario', (req, res) => {
     });
 });
 
-// ROTA GET: Exibir formulário de cadastro de Admin (apenas para Admin)
+// Rota GET: Exibir formulário de cadastro de Admin (apenas para Admin)
 app.get('/admin/cadastrar-admin', requireAdmin, (req, res) => {
     res.render('admin_cadastrar', { userName: req.session.userNome });
 });
 
-// --- INICIALIZAÇÃO ---
+// Inicialização
 initializeDatabase(); // Chamando a função de correção e inserção
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
