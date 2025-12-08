@@ -1,7 +1,8 @@
 # Hoje É Onde?
 
 Projeto da disciplina INF 321 - Projeto e Desenvolvimento de Sistemas Para a Web (UFV) com dados ilustrativos.
-Maryana Costa do Vale (105820) e Alice Silva Mendonça (112705)
+
+Trabalho por Maryana Costa do Vale (105820) e Alice Silva Mendonça (112705).
 
 O **Hoje É Onde?** é uma aplicação web focada na divulgação centralizada de eventos, festas e promoções na cidade de Viçosa. O objetivo é facilitar a socialização, conectando organizadores e público através de uma interface intuitiva e cronológica.
 
